@@ -76,35 +76,30 @@ stringBuilder.setCharAt(0,'p'); //在某一个独特位置设置字符
 char c = stringBuilder.charAt(i);//查询某个位置上的字符
 ---------------------------------------------------------------------------
 # HashMap常用的几个函数:
-HashMap<Integer, Integer> map = new HashMap<>();
+适用范围:出现频率累计/
+HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 map.put(key, value); //注意元素时String时用""，Character时用''
 map.get(key) //返回value，失败则为null
 map.getOrDefault(key, defaultValue); //返回value，失败则为defaultValue
 map.remove(key); //删除key, 返回key对应的value, 否则返回null
 map.remove(key, value); //删除k-v对，失败返回false
-map.containsKey(key); //查找key
+map.containsKey(key); //查找key, 常用作判断
 map.containsValue(value); //查找value
 map.keySet(); //获取key列表
-6. 元素遍历
+## 典型应用
+1. 元素遍历
 // 使用Iterator迭代器，专门用来对集合中的对象进行处理。.Iterator()函数返回集合的迭代器对象，对于这个Iterator可以使用相应的函数。**用来做遍历是十分方便的，配合.hasNext()和.next()函数**
     Iterator iterator = hashMap.keySet().iterator();
     while (iterator.hasNext()){
         String key = (String)iterator.next();
         System.out.println(key+"="+hashMap.get(key));
     }
-// 使用java的语法结构来对每个key进行遍历，然后在循环中操作
-for(int num : map.keySet()){}
-//常用的内容和出现次数的哈希表存储方法
-```
-public void Insert(char ch)
-    {
-        if(!map.keySet().contains(ch)){
-            map.put(ch,1);
-        }else{
-            map.put(ch,map.get(ch)+1);
-        }
-        input += ch;
-    }
+2. keySet遍历并操作
+for(int num : map.keySet()){操作内容}
+3. 累计出现次数
+```java
+HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+for(int num : nums) map.put(num, map.getOrDefault(num, 0) + 1);
 ```
 ---------------------------------------------------------------------------
 # HashSet常用的几个函数:
