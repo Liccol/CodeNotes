@@ -584,30 +584,107 @@ public class Solution {
     }
 }
 ```
-# 
 
+
+# JZ42 和为S的两个数字
+输入一个递增排序的数组和一个数字S，在数组中查找两个数，使得他们的和正好是S，如果有多对数字的和等于S，输出两个数的乘积最小的。
 ##思路
-
+很经典的双指针问题，前提在于他是排序的，这样指针可以有2种情况去调高左指针，调低右指针。
 ## 题解
+1. 双指针
+```
+import java.util.ArrayList;
+public class Solution {
+    public ArrayList<Integer> FindNumbersWithSum(int [] array,int sum) {
+        ArrayList<Integer> ans = new ArrayList<>();
+        if(array == null || array.length == 0) return ans;
+        int left = 0, right = array.length - 1, tmp = Integer.MAX_VALUE;
+        while(left < right){
+            if((array[left] + array[right]) < sum) left++;
+            else if((array[left] + array[right]) > sum) right--;
+            else {
+                if(array[left] * array[right] < tmp){
+                    ans.add(array[left]);
+                    ans.add(array[right]);
+                    tmp = array[left] * array[right];
+                }
+                left++;
+                right--;
+                
+            }
+        }
+        return ans;
+    }
+}
+```
+2. 哈希
+要求a + b = sum, 如果已知a， 那么b = sum - a
+所以可以先将b添加入哈希中，然后遍历一遍数组设为a， 在哈希中寻找是否存在sum-a，然后再更新乘积最小值。
+这个就麻烦一点。
 
-# 
-
-## 思路
-
-## 题解
-
-# 
-
+# 和为S的连续正数序列
+小明很喜欢数学,有一天他在做数学作业时,要求计算出9~16的和,他马上就写出了正确答案是100。但是他并不满足于此,他在想究竟有多少种连续的正数序列的和为100(至少包括两个数)。没多久,他就得到另一组连续正数和为100的序列:18,19,20,21,22。现在把问题交给你,你能不能也很快的找出所有和为S的连续正数序列? Good Luck!
 ##思路
-
+其实就是个滑动窗口，确定左，右=左+1，如果和打过sum，那就left++找下一个窗口。
 ## 题解
-
-# 
-
-##思路
-
-## 题解
-
+```
+import java.util.ArrayList;
+public class Solution {
+    public ArrayList<ArrayList<Integer> > FindContinuousSequence(int sum) {
+       ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+        if(sum <= 0) return ans;
+        int left = 1, sumTmp = 0;
+        while(left <= sum / 2){
+            sumTmp = left;
+            int right = left + 1;
+            ArrayList<Integer> list = new ArrayList<>();
+            while(right <= sum / 2+1){
+                sumTmp += right;
+                if(sumTmp > sum) break;
+                else if(sumTmp < sum) right++;
+                else {
+                    for(int i = left; i <= right; i++){
+                        list.add(i);
+                    }
+                    ans.add(list);
+                }
+            }
+            left++;
+        }
+        return ans;
+    }
+}
+```
+2. 优化
+可以看到这里面实际上如果每次判断sumTmp>sum后，重新计算sumTmp，这样实际上有很多的重复运算。所以一个优化是：当tmp>sum时，把tmp-left，然后left++，再判断tmp，如果小了，那增大right，如果大了，继续退出left，从而减少中间的重复运算。
+```
+import java.util.ArrayList;
+public class Solution {
+    public ArrayList<ArrayList<Integer> > FindContinuousSequence(int sum) {
+       ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+        if(sum <= 0) return ans;
+        int left = 1, right = 2, sumTmp = 1;
+        while(left <= sum / 2){
+            if(sumTmp < sum){
+                sumTmp += right;
+                right++;
+            }else if(sumTmp > sum){
+                sumTmp -= left;
+                left++;
+            }else{
+                ArrayList<Integer> list = new ArrayList<>();
+                for(int i = left; i < right; i++){
+                    list.add(i);
+                }
+                ans.add(list);
+                sumTmp -= left;
+                left++;
+            }
+        }
+        return ans;
+    }
+}
+```
 # 
 
 ##思路
@@ -890,6 +967,95 @@ public class Solution {
 }
 ```
 
+# JZ40 数组中只出现一次的数字
+一个整型数组里除了两个数字之外，其他的数字都出现了两次。请写程序找出这两个只出现一次的数字。
+## 思路
+这个就比较猛了，利用A XOR 0 = A，A XOR A = 0的特性，也就是说，出现两次的数字在全体按位异或后均只得到0，最后单独出现的那个数字就是全体异或的结果，因为A XOR 0 = 0。
+## 题解
+1. 哈希
+一种思路是哈希，把频次存在哈希表，然后查找value=1的两个内容。
+2. 位运算
+A XOR A = 0
+当只有一个数出现一次时，我们把数组中所有的数，依次异或运算，最后剩下的就是落单的数，因为成对儿出现的都抵消了。
+依照这个思路，我们来看两个数（我们假设是AB）出现一次的数组。我们首先还是先全体异或，剩下的数字肯定是AB异或的结果。
+这个结果的二进制中的1，表现的是A和B的不同的位。我们就取第一个1所在的位数，假设是第3位，接着把原数组分成两组，分组标准是第3位是否为1。如此，相同的数（如CC）肯定在一个组，因为相同数字所有位都相同；而不同的数肯定不在一组（如AB）。然后把这两个组按照最开始的思路，依次异或，剩余的两个结果就是这两个只出现一次的数字。
+```
+
+```
+
+# JZ47 求1~n的和
+求1+2+3+...+n，要求不能使用乘除法、for、while、if、else、switch、case等关键字及条件判断语句（A?B:C）。
+## 思路
+不能使用这些是什么意思？也就是说不能用循环递归判断这些内容，那么计算和的时候这些是必须的嘛？
+不是的，可以直接求和公式。
+## 题解
+1. 求和公式
+```
+class Solution {
+public:
+    int Sum_Solution(int n) {
+        return n*(n+1) / 2;
+    }
+};
+```
+2. 如果不用求和公式怎么构造？
+这里有个技巧，从递归上看，
+```
+class Solution {
+public:
+    int Sum_Solution(int n) {
+        if (n == 1) return n;
+        return n + Sum_Solution(n-1);
+    }
+};
+```
+必须要设定结束条件n==1时才行，但是if语句可以替换嘛，答案是可以的，采用逻辑与&&
+(n>0) && (sum += Sum_Solution(n-1));
+这样逻辑运算符&&左侧为false时，右侧不运算。利用这个特点，当n变到0的时候，右侧的递归运算就停止。
+```
+public class Solution {
+      public int Sum(int n) {
+            int sum = n;
+            boolean ans = (n>0)&&((sum+=Sum(n-1))>0);
+         // boolean ans = (n>0)&&((sum+=Sum(n-1))!=0);    
+            return sum;
+        }
+}
+```
+# JZ48 不用加减乘除做加法
+写一个函数，求两个整数之和，要求在函数体内不得使用+、-、*、/四则运算符号。
+##思路
+这里边不能用算数运算符，所以第一时间想到位运算，位运算的组合也是能构成运算符号的。
+接下来就是找规律：
+|操作数1|操作数2|与|或|异或|加法当前位|加法进位
+|1|1|1|1|0|0|1|
+|1|0|0|1|1|1|0|
+|0|1|0|1|1|1|0|
+|0|0|0|0|0|0|0|
+所以可以看到，当前位结果和异或一样，进位和与的内容一样
+所以一位的加法实际上就是，先计算异或结果，然后计算与结果并左移一位（因为是进位），然后两个结果相加（循环，同样是一位加法）。
+那如果是两位或者多位呢？
+那当然也是一样的，所以题解应该是一个循环：
+每次把两数求与得到A，然后求异或左移一位得到B
+进入下一个循环操作A和B，继续操作
+--什么时候结束？
+直到没有进位为止。
+## 题解
+```
+class Solution {
+public:
+    int Add(int num1, int num2)
+    {
+        while(num2 != 0){
+            int tmp = (num1 & num2) << 1;
+            num1 = num1 ^ num2;
+            num2 = tmp;
+        }
+        return num1;
+    }
+};
+```
+
 # JZ55 链表中环的入口
 给一个链表，若其中包含环，请找出该链表的环的入口结点，否则，输出null。
 ## 思路
@@ -1133,8 +1299,76 @@ public class Solution {
 # JZ63 数据流中的中位数
 如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。我们使用Insert()方法读取数据流，使用GetMedian()方法获取当前读取数据的中位数。
 ## 思路
-
+这个比较特殊的地方在于，他这个数据流不是一次性给出来的，也就是说他偶尔把数值insert进来，然后无论啥时候调用，都要成功把中位数返回。
+1. 暴力解一般就是每次insert更新数组，然后每次找中位数的时候做一次排序就好了
+2. 这个顺序插入其实和插入排序是很像的，每次插入的时候就做个排序。然后调用函数时，直接返回排序好的数组的中位数就好了。
 ## 题解
+1. 插入排序思想
+```
+public class Solution {
+    private int[] nums = new int[1000000];
+    private int count = 0;
+    public void Insert(Integer num) {
+        if(count==0) {
+            nums[count] = num;
+            count++;
+            return;
+        }
+        int i = count - 1;
+        for(; i >=0; i--){
+            if(nums[i] > num) nums[i + 1] = nums[i];
+            else break;
+        }
+        nums[i+1] = num;
+        count++;
+    }
+
+    public Double GetMedian() {
+        if((count&1)==1) return (double)nums[count/2];
+        else return (double) ((nums[count/2] + nums[count/2-1])/2.0);
+    }
+}
+```
+2. 堆方法
+把内容分成三块[中位数左侧内容]+中位数+[中位数右侧内容]。可以看做两个堆，分别维护中位数前和中位数后的值就好了，一个是最小堆一个是最大堆。
+思路是这样，那么实现起来有哪些问题？
+--2.1 怎么保证两个堆的大小平衡？
+可以在插入的时候就对两个堆做操作。每次都往左边堆放值。当左边堆小于后边堆，把左边堆的堆顶入右堆。同时这样也能做到把大的数放到右边堆里。
+--2.2 怎么把中位数或者中位数两边的内容取出来？
+中位数左边用一个最大堆，取堆顶就是最大值；右边用最小堆，取堆顶就是最小值，这就是中位数或中位数两边的值。
+--2.3 插入的时候怎么放值？
+模拟一下：
+如果要放入第奇数个，最终肯定有个值进左栈，但是不一定是num，可能num这个值比现在的右栈最小大，所以先放入右栈，然后把右栈顶poll出来，放到左栈。
+如果要放入第偶数个，最终有个值进右栈，但是不一定是num，可能num比左栈最大要小，所以先放入左栈，然后左栈顶poll出来放到右栈。
+```
+import java.util.*;
+public class Solution {
+    // 大顶堆，存放中位数左侧值
+    PriorityQueue<Integer> min_q = new PriorityQueue<>((o1, o2) -> o2 - o1);
+    // 小顶堆，存放中位数右侧值
+    PriorityQueue<Integer> max_q = new PriorityQueue<>();
+    int count = 0;
+    public void Insert(Integer num) {
+        count++;
+        if((count & 0x1) == 0){
+            // 第偶数个数，要判断放在左还是右，最终肯定是左右大小平衡，即右侧肯定要加一个数
+            // 加载右侧是认为大于中位数，所以要把左侧的最大值poll出来，所以先把值放到左侧，然后poll出来左侧最大值，放入右侧
+            min_q.offer(num);
+            max_q.offer(min_q.peek());
+            min_q.poll();
+        }else{
+            //第奇数个数，肯定要拿出一个值放入左侧，但是这个num不一定就是在左侧，所以放入右侧堆，然后poll出最小的，再放入左侧。
+            max_q.offer(num);
+            min_q.offer(max_q.peek());
+            max_q.poll();
+        }
+    }
+
+    public Double GetMedian() {
+        return ((count & 0x1) == 0) ? (double) (min_q.peek()+max_q.peek())/2.0 : (double) min_q.peek();
+    }
+}
+```
 
 # JZ66 机器人的运动范围
 地上有一个m行和n列的方格。一个机器人从坐标0,0的格子开始移动，每一次只能向左，右，上，下四个方向移动一格，但是不能进入行坐标和列坐标的数位之和大于k的格子。 例如，当k为18时，机器人能够进入方格（35,37），因为3+5+3+7 = 18。但是，它不能进入方格（35,38），因为3+5+3+8 = 19。请问该机器人能够达到多少个格子？
