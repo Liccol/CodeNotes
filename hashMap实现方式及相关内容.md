@@ -218,9 +218,6 @@ void afterNodeInsertion(boolean evict) { // possibly remove eldest
 
 <div align="center"> <img src="https://upload-images.jianshu.io/upload_images/807144-4db95a9fa5fedc1c?imageMogr2/auto-orient/strip|imageView2/2/w/820/format/webp" width=""> </div><br>
 
-
-其主要采用**CAS操作+synchronized锁**的方式实现线程安全，其中synchronize锁的粒度为桶中头结点（包括链表Node结点，包装红黑树的TreeBin结点），底层依然由 “数组”桶+链表+红黑树 的方式实现。
-
 ## put方法
 
 - 通过key找到承载的Segment对象位置，然后调用tryLock()竞争Segment的锁，以确保能操作线程；如果获取锁失败，执行scanAndLockForPut方法等到调用成功。
